@@ -20,7 +20,10 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import java.util.Map;
+
 import edu.asu.ser335.jfm.RolesSingleton;
+import edu.asu.ser335.jfm.UsersSingleton;
 
 /**
  * @author Nikhil Hiremath
@@ -151,8 +154,19 @@ public class LoginPannel extends JFrame implements ActionListener {
 	// Login Validation
 	public boolean validateUser(String uName, String pwd, String role) {
 		
-		// SER335 TODO: Implement your validation code here.
+		// Task H1
 
-		return true;
+
+		try {
+			//Map<String, String> userRoleMapping = UsersSingleton.getUserRoleMapping();
+
+			for (Map.Entry<String, String> entry : UsersSingleton.getUserRoleMapping().entrySet()) {
+				System.out.println(entry.getKey() + " -> " + entry.getValue());
+			}
+			return false;
+
+		} catch (java.lang.Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
