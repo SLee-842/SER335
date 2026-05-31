@@ -190,6 +190,7 @@ public class MainPanel extends JPanel {
 	// SER335: You need to figure out under what roles to allow these buttons to be added
 	// You can comment each line out if you like and see how the UI changes.
 	/*
+
 	    buttons.addElement(f3Button); //View Button			
 	    buttons.addElement(f4Button); //Edit Button
 	    buttons.addElement(f5Button); //Copy Button
@@ -198,7 +199,32 @@ public class MainPanel extends JPanel {
 	*/
 	for (int i = 0; rpm != null && i < rpm.length; i++) {
 	    System.out.println("Privileges for " + userRole + " role: " + rpm[i] + i);
-			
+
+		//added for task H2
+		//View Button
+		if (rpm[i].equals(CommonConstants.VIEW_ACTION)) {
+			buttons.addElement(f3Button);
+		}
+		//added for task H2
+		//Edit Button
+		if (rpm[i].equals(CommonConstants.EDIT_ACTION)) {
+			buttons.addElement(f4Button);
+		}
+		//added for task H2
+		//Copy Button
+		if (rpm[i].equals(CommonConstants.COPY_ACTION)) {
+			buttons.addElement(f5Button);
+		}
+		//added for task H2
+		//Move Button
+		if (rpm[i].equals(CommonConstants.MOVE_ACTION)) {
+			buttons.addElement(f6Button);
+		}
+		//added for task H2
+		//Mkdir Button
+		if (rpm[i].equals(CommonConstants.MKDIR_ACTION)) {
+			buttons.addElement(f7Button);
+		}
 	    //Add User
 	    if (rpm[i].equals(CommonConstants.ADDUSER_ACTION)) {
 		buttons.addElement(addNewUser);
