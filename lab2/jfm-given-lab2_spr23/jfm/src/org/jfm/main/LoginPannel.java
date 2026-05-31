@@ -20,10 +20,17 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+//Added for Task H1
+import java.nio.charset.StandardCharsets;
+
+//Added for Task H1
 import java.util.Map;
 
 import edu.asu.ser335.jfm.RolesSingleton;
+//Added for Task H1
 import edu.asu.ser335.jfm.UsersSingleton;
+import edu.asu.ser335.jfm.SaltsSingleton;
+import io.whitfin.siphash.SipHasher;
 
 /**
  * @author Nikhil Hiremath
@@ -152,17 +159,54 @@ public class LoginPannel extends JFrame implements ActionListener {
 
 
 	// Login Validation
+	/**
+	 * Task H1: Implement login functionality (18 points)
+	 *
+	 * Write your code inside the validateUser() method in the LoginPannel.java file. Implement the following
+	 * functionality:
+	 *
+	 * 1. (3) For each login event, check that the user, role, and user-role mapping exists in the userRoleMapping
+	 * table from UsersSingleton.
+	 *
+	 * 2. (3) If the user, role, or user-role mapping does not exist, then the method will return a ‘false’.
+	 *
+	 * 3. (9) If the user, role, and user-role mapping exists:
+	 * a. Generate a salted password using the ‘siphash’ library.
+	 * b. Verify the generated salt password against the salted password stored in the appropriate Singleton. A user
+	 * should be successfully validated only if their username, salted password, and role match. The function will
+	 * return ‘true’ on successful validation.
+	 *
+	 * The following login credentials (which use the salts) can be used to validate the user:
+	 * User: adam Role: admin Password: 123456
+	 * User: zampa Role: developer Password: 123456
+	 * User: tim Role: user Password: 123456
+	 */
+
 	public boolean validateUser(String uName, String pwd, String role) {
-		
-		// Task H1
-
-
 		try {
-			//Map<String, String> userRoleMapping = UsersSingleton.getUserRoleMapping();
-
 			for (Map.Entry<String, String> entry : UsersSingleton.getUserRoleMapping().entrySet()) {
-				System.out.println(entry.getKey() + " -> " + entry.getValue());
+				//validate password if username and role match system records
+				if (entry.getKey().equals(uName) && entry.getValue().equals(role)) {
+
+					//get users salt
+					SaltsSingleton saltsSingleton = SaltsSingleton.getUserSalts();
+					byte[] salt = saltsSingleton.getUserSalt(uName).getBytes(StandardCharsets.UTF_8);
+
+					//generate salted password w/user input password and user salt
+					long genSaltedPwd = SipHasher.hash(salt, pwd.getBytes(StandardCharsets.UTF_8));
+
+					//get salted password stored in system records
+					long saltedPwd = Long.parseLong(UsersSingleton.getUserPasswordMapping().get(uName));
+
+					//return true if generated salted password matches system stored salted password
+					if(genSaltedPwd == saltedPwd)
+						return true;
+					//return false if salted passwords do not match
+					else
+						return false;
+				}
 			}
+			//return false if username and role do not match system records
 			return false;
 
 		} catch (java.lang.Exception e) {
