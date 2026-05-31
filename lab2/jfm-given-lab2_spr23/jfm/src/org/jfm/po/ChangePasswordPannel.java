@@ -21,6 +21,8 @@ import javax.swing.JTextField;
 
 
 import edu.asu.ser335.jfm.RolesSingleton;
+//added for task H3
+import edu.asu.ser335.jfm.UsersSingleton;
 
 
 /**
@@ -113,8 +115,24 @@ public class ChangePasswordPannel extends JFrame implements ActionListener {
 		String role = (String) roleList.getSelectedItem();
 		
 		// TODO: for you to complete!
-		JOptionPane.showMessageDialog(null, "NOT IMPLEMENTED YET!!");
+		//Added for task H3
 
+		if (userName == null || userName.isBlank() || password == null || password.isBlank() || role == null
+				|| role.isBlank())
+			JOptionPane.showMessageDialog(null, "Error: Missing user information");
+		else {
+			try {
+				if (UsersSingleton.getUserRoleMapping().containsKey(userName)) {
+					if (UsersSingleton.getUserRoleMapping().get(userName).equals(role)) {
+						if(UsersSingleton.updatePasswordMapping(userName, password, role))
+							JOptionPane.showMessageDialog(null, "Success: Password updated");
+						else JOptionPane.showMessageDialog(null, "Error updating password");
+					} else JOptionPane.showMessageDialog(null, "Error: Role does not match username");
+				} else JOptionPane.showMessageDialog(null, "Error: Username does not exist");
+			} catch (java.lang.Exception ex) {
+				throw new RuntimeException(ex);
+			}
+		}
 	}
 
 }

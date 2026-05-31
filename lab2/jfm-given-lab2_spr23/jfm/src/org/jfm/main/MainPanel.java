@@ -25,6 +25,8 @@ import org.jfm.po.MkdirAction;
 import org.jfm.po.MoveAction;
 import org.jfm.po.QuitAction;
 import org.jfm.po.ViewFileAction;
+//Added for task H3
+import org.jfm.po.ChangePasswordAction;
 import org.jfm.views.JFMView;
 
 import edu.asu.ser335.jfm.RolesSingleton;
@@ -171,6 +173,11 @@ public class MainPanel extends JPanel {
 	f7Button.getActionMap().put("mkdirButton", mkdir);
 	f7Button.addActionListener(mkdir);
 
+	//added for task H3
+	JButton changePwdButton = new JButton("Change Password");
+	ChangePasswordAction changePwd = new ChangePasswordAction();
+	changePwdButton.addActionListener(changePwd);
+
 	JButton addNewUser = new JButton("Add User");
 	AddUserAction addUser = new AddUserAction();
 	addNewUser.addActionListener(addUser);
@@ -224,6 +231,11 @@ public class MainPanel extends JPanel {
 		//Mkdir Button
 		if (rpm[i].equals(CommonConstants.MKDIR_ACTION)) {
 			buttons.addElement(f7Button);
+		}
+		//added for task H3
+		//changePwd Button
+		if (rpm[i].equals(CommonConstants.CHANGE_PASSWORD_ACTION)) {
+			buttons.addElement(changePwdButton);
 		}
 	    //Add User
 	    if (rpm[i].equals(CommonConstants.ADDUSER_ACTION)) {
