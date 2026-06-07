@@ -1,0 +1,127 @@
+<project name="JFM" default="main" basedir=".">
+    <description>
+        The build file that creates a distribution of the JFM Application
+    </description>
+  <!-- set global properties for this build -->
+  <property name="build_no" value="0.9.1"/>
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="dist"  location="jfm-${build_no}"/>
+  <property name="dist.lib.dir" location="jfm-${build_no}/lib" />
+  <property name="exejar" value="jfm.jar"/>
+  <property name="deprecation" value="on"/>
+  <property name="javahelp" location="javahelp"/>
+  <property name="help_jar" value="libs/help.jar"/>
+  <property name="release_zip" value="jfm-${build_no}.zip"/>
+  <property name="release_tar" value="jfm-${build_no}.tar"/>  
+  <property name="release_targz" value="${release_tar}.gz"/>  
+  <property name="lib" value="libs" />
+  <property name="main-class" value="org.jfm.main.Main" />
+
+
+	
+  <target name="init">
+	    <!-- Create the build directory structure used by compile -->
+  	<mkdir dir="${build}"/>
+	<mkdir dir="${dist}"/>
+  </target>
+	
+  
+ <path id="project.class.path" >
+  	<fileset dir="${basedir}/">
+  	    <include name="${lib}/*.jar" />
+  	</fileset>
+  </path>
+  
+
+  <target name="compile" depends="init" description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac includeantruntime="false" srcdir="${src}" destdir="${build}" classpathref="project.class.path" compiler="javac1.8" debug="off" deprecation="on" optimize="on">
+	<!--<compilerarg value="-Xlint:unchecked"/> -->
+  	</javac>
+  	<copy todir="${build}">
+  		<fileset dir="${src}">
+  			<include name="**/*.gif"/>
+  		</fileset>
+  	</copy>
+  </target>
+	
+
+ <!-- Group all dependencies into a big dependency-all.jar -->
+    <target name="copy-dependencies">
+        <mkdir dir="${dist.lib.dir}" />
+        <jar jarfile="${dist.lib.dir}/dependencies-all.jar">
+            <zipgroupfileset dir="${lib}">
+                <include name="**/*.jar" />
+            </zipgroupfileset>
+        </jar>
+    </target>
+
+	 <target name="jar" depends="compile, copy-dependencies" 
+	                description="package, output to JAR">
+
+	        <mkdir dir="${dist}" />
+	        <mkdir dir="${dist.lib.dir}" />
+	 	
+	 	<!-- Adding the JSON files to dist file  -->
+	 	    <copy todir="${dist}/resources">
+	 	  	  	 <fileset dir="${basedir}/resources">
+	 	  	  	  		  	    <include name="*.json" />
+	 	  	  	 </fileset>
+	 	  	</copy>
+
+	 	
+	        <jar jarfile="${dist}/${exejar}" basedir="${build}" update="true">
+	            <manifest>
+	                <attribute name="Built-By" value="${user.name}"/>
+	                <attribute name="Main-Class" value="${main-class}" />
+	            </manifest>
+	            <zipfileset src="${dist.lib.dir}/dependencies-all.jar" 
+	                                excludes="META-INF/*.SF" />
+	        </jar>
+
+	    </target>
+ 	
+  <target name="dist" depends="jar"  description="generate the distribution" >
+	<!--<jar destfile="${help_jar}" basedir="${javahelp}" update="true">
+	</jar>-->
+	<copy tofile="${dist}/run.bat">
+		<fileset file="rundeploy.bat">
+		</fileset>
+	</copy>
+	<copy tofile="${dist}/run.sh">
+		<fileset file="rundeploy.sh">
+		</fileset>
+	</copy>
+  	<chmod file="${dist}/run.sh" perm="ugo+rx"/>
+  </target>
+
+	
+  <!--Not creating zip and tar files as of now -->
+  <target name="release" depends="dist" description="generate the distributable tar.gz and zip">
+	<zip destfile="${release_zip}" basedir="${dist}"/>
+	<tar tarfile="${release_tar}" basedir="${dist}"/>
+	<gzip zipfile="${release_targz}" src="${release_tar}"/>	
+	<delete file="${release_tar}"/>
+  </target>
+	
+	
+  <target name="clean"
+        description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    
+    <delete dir="${dist}"/>   
+  	<!-- 
+  	<delete dir="${build}"/>
+	<delete file="${release_zip}"/>
+    <delete file="${release_targz}"/>
+    -->
+  </target>
+  
+	
+	<target name="post_clean" description="post clean up" >
+		<delete dir="${build}"/>  
+		<delete dir="${classes}"/>  
+	  </target>
+	<target name="main" depends="clean, compile, jar, dist, post_clean" />
+</project>
