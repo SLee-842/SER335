@@ -34,20 +34,18 @@ public class MainFrame_AboutBox extends JDialog implements ActionListener {
 	private String version = "0.9 (beta)";
 	private String copyright = "Copyright (c) 2001-2006";
 	private String comments = "";
-
+	
+	//SER335 LAB5
 	public MainFrame_AboutBox(Frame parent) {
 		super(parent);
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-		try {
-			jbInit();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		jbInit();		
 		pack();
 	}
 
+	//SER335 LAB5
 	/** Component initialization */
-	private void jbInit() throws Exception {
+	private void jbInit() {
 		// imageLabel.setIcon(new ImageIcon(MainFrame_AboutBox.class.getResource("[Your
 		// Image]")));
 		this.setTitle("About");

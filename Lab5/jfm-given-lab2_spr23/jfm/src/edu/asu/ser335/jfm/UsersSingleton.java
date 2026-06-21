@@ -56,17 +56,31 @@ public final class UsersSingleton {
 		return Collections.unmodifiableMap(userPasswordMapping);
 	}
 
+	//SER335 LAB5
 	private static final void writeAuthFile(User u) throws IOException {
 		// adding the new user to authentication.json
 		ObjectMapper mapper = new ObjectMapper();
 		List<User> users;
-		InputStream inputStream = new FileInputStream(new File(CommonConstants.AUTHENTICATION_FILE));
-		TypeReference<List<User>> typeReference = new TypeReference<List<User>>() {};
-		users = mapper.readValue(inputStream, typeReference);
+		
+		File authFile = new File(CommonConstants.AUTHENTICATION_FILE);
+	    TypeReference<List<User>> typeReference = new TypeReference<List<User>>() {};
+
+	    try (InputStream inputStream = new FileInputStream(authFile)) {
+	        users = mapper.readValue(inputStream, typeReference);
+	    } catch (IOException ie) {
+	        throw new IOException("Unable to read authentication file", ie);
+	    }
+
 		users.add(u);
-		mapper.writeValue(new File(CommonConstants.AUTHENTICATION_FILE), users);
+		
+		try {
+			mapper.writeValue(authFile, users);			
+		} catch (IOException ie) {
+			throw new IOException("Unable to write user (" + u.getName() + ") authentication to file", ie);
+		}
 	}
 
+	//SER335 LAB5
 	public static final boolean createPasswordMapping(String userName, String password, String role) throws Exception {
 		boolean rval = true; // we assume user does not exist
 
@@ -80,28 +94,22 @@ public final class UsersSingleton {
 				// in userPasswordMapping, userRoleMapping, userSaltMapping
 				// and all write details in authentication.json and salt.json
 				String saltedPassword = null;
-				try {
-					saltedPassword = SaltsSingleton.getUserSalts().createSaltedPassword(userName, password, true);
-				} catch (Exception exc) {
-					// if we got an exception on this call then the salt was not saved, so we should abort by rethrowing exc
-					throw new Exception(exc);
-				}
+				
+				saltedPassword = SaltsSingleton.getUserSalts().createSaltedPassword(userName, password, true);
+				
 				// now we can go ahead with our work
 				User u = new User();
 				u.setName(userName);
 				u.setPassword(saltedPassword);
 				u.setRole(role);
 
-				try {
-					writeAuthFile(u);
-				} catch (Exception exc2) {
-					// one problem we have is that we are not transactional; if we fail writing the auth file but succeeded
-					// with the salts file above we will be out of sync
-					throw new Exception("Unable to write auth file, salts file may be corrupted");
-				}
+				writeAuthFile(u);
+			
 				UsersSingleton.userPasswordMapping.put(userName, saltedPassword);
 				UsersSingleton.userRoleMapping.put(userName, role);
 			}
+		} else {
+			throw new IllegalArgumentException("Username, password, and role are required");
 		}
 		return rval;
 	}

@@ -107,6 +107,7 @@ public class AddUserPannel extends JFrame implements ActionListener {
 		setLocationRelativeTo(null);
 	}
 
+	//SER335 LAB5
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
@@ -123,7 +124,7 @@ public class AddUserPannel extends JFrame implements ActionListener {
 				dispose();
 			}
 		} catch (Throwable t) {
-			JOptionPane.showMessageDialog(null, "Some error accessing file!!");	
+			JOptionPane.showMessageDialog(null, t.getMessage());	
 		}
 	}
 }

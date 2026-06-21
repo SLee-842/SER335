@@ -165,6 +165,7 @@ public class SearchDialog extends JDialog {
 	 * 
 	 * @param e
 	 */
+	//SER335 Lab5
 	void searchButton_actionPerformed(ActionEvent e) {
 		if (isSearching) {
 			mustStop = true;
@@ -199,12 +200,13 @@ public class SearchDialog extends JDialog {
 				searchButton.setText("Stop");
 				isSearching = true;
 				try {
+					
 					search(startFileDir);
-				} catch (Exception ex) {
+				} finally {				
+					searchButton.setText("Search");
+					isSearching = false;
+					mustStop = false;
 				}
-				searchButton.setText("Search");
-				isSearching = false;
-				mustStop = false;
 			}
 		}).start();
 	}
@@ -216,14 +218,15 @@ public class SearchDialog extends JDialog {
 	 * @param dir
 	 * @throws Exception
 	 */
-	private void search(JFMFile dir) throws Exception {
+	//SER335 LAB5
+	private void search(JFMFile dir) {
 		JFMFile[] files = dir.listFiles();
 		for (int i = 0; i < files.length; i++) {
 			if (files[i].isDirectory()) {
 				search(files[i]);
 			} else {
 				if (mustStop)
-					throw new Exception("I have to stop");
+					return;
 				if (isEligible(files[i])) {
 					listModel.addElement(files[i]);
 				}

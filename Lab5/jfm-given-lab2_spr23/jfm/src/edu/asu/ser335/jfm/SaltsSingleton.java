@@ -58,7 +58,9 @@ public final class SaltsSingleton {
 		byte [] salt = Arrays.copyOfRange(tempArray, 0, 16);
 		return salt;
 	}
-	private boolean writeSaltsFile(String userName, String slt, boolean addFlag) throws IOException {
+	
+	//SER335 LAB5
+	private boolean writeSaltsFile(String userName, String slt, boolean addFlag) throws IOException{
 		boolean rval = false;
 		// adding salt of new user to salts.json
 		List<Salt> salts;
@@ -66,11 +68,15 @@ public final class SaltsSingleton {
 		s.setName(userName);
 		s.setSalt(slt);
 		ObjectMapper map = new ObjectMapper();
+	    File saltsFile = new File(CommonConstants.SALTS_FILE);
+	    TypeReference<List<Salt>> typeReference = new TypeReference<List<Salt>>() {};
 
-		InputStream inputStream = new FileInputStream(new File(CommonConstants.SALTS_FILE));
-		TypeReference<List<Salt>> typeReference = new TypeReference<List<Salt>>() {};
-		salts = map.readValue(inputStream, typeReference);
-		if (addFlag) {
+	    try (InputStream inputStream = new FileInputStream(saltsFile)) {
+	        salts = map.readValue(inputStream, typeReference);
+	    } catch (IOException ie) {
+	        throw new IOException("Unable to read salts file", ie);
+	    }
+	    if (addFlag) {
 			rval = salts.add(s);
 		} else {
 			// find the user in the list to see if salt should be replaced
@@ -81,24 +87,25 @@ public final class SaltsSingleton {
 				}
 			}
 		}
-		map.writeValue(new File(CommonConstants.SALTS_FILE), salts);
+	    
+		try {
+			map.writeValue(saltsFile, salts);			
+		} catch (IOException ie) {
+			throw new IOException("Unable to write user (" + userName + ") salt to file", ie);
+		}	
 		return rval;
 	}
 
-	public final String createSaltedPassword(String userName, String password, boolean addFlag) throws Exception {
+	//SER335 LAB5
+	public final String createSaltedPassword(String userName, String password, boolean addFlag) throws IOException  {
 		byte[] salt = generateSalt();
 		String slt = new String(salt);
 
-		try {
-			if (writeSaltsFile(userName, slt, addFlag)) {
-				userSaltsMapping.put(userName, slt);  // only update the mapping if we wrote it to the file
-				return Long.toString(SipHasher.hash(salt, password.getBytes()));
-			} else {
-				throw new Exception("Unable to create salt");
-			}
-		} catch (IOException ie) {
-			ie.printStackTrace();
-			throw new Exception("Unable to persist salt");
+		if (writeSaltsFile(userName, slt, addFlag)) {
+			userSaltsMapping.put(userName, slt);  // only update the mapping if we wrote it to the file
+			return Long.toString(SipHasher.hash(salt, password.getBytes()));
+		} else {
+			throw new IllegalStateException("Unable to create or update salt for user: " + userName);
 		}
 
 	}

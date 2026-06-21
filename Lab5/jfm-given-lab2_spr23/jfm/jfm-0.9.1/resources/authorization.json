@@ -1,0 +1,14 @@
+[
+	{
+		"role": "admin",
+	        "privileges": ["View", "Edit","Copy","Move","Mkdir","Quit","Logout", "AddUser"]
+	},
+	{
+		"role": "developer",
+		"privileges": ["View", "Edit","Copy","Move","Mkdir","Quit","Logout"]
+	},
+	{
+		"role": "user",
+		"privileges": ["View","Quit","Logout"]
+	}
+]
